@@ -1,0 +1,38 @@
+
+<mat-card>
+	<form (ngSubmit)="onAddPost(f)" #f="ngForm">
+		<mat-form-field>
+			<input 
+				matInput 
+				type="text" 
+				name="title" 
+				id="title" 
+				placeholder="Post Tile" 
+				ngModel
+				required
+				minlength="4"
+				#title="ngModel"
+			>
+			<mat-error *ngIf="title.invalid && title.touched">title must be more than three characters</mat-error>
+		</mat-form-field>
+		<mat-form-field>
+			<textarea 
+				matInput 
+				name="content" 
+				id="content" 
+				ngModel
+				required 
+				placeholder="Post Content" 
+				rows="6" 
+				#content="ngModel"
+			></textarea>
+			<mat-error *ngIf="content.invalid && content.touched">please enter some content</mat-error>
+		</mat-form-field>
+		<button
+			[disabled]="f.invalid" 
+			mat-raised-button 
+			color="accent"
+			type="submit" 
+		>{{ !f.invalid ? 'Save Post' : 'Please Fill Post '}}</button>
+	</form>
+</mat-card>
