@@ -7,6 +7,9 @@
 
 # dependencies
 /node_modules
+/config
+nodemon.json
+/images
 
 # IDEs and editors
 /.idea

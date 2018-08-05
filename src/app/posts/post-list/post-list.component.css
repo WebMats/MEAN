@@ -6,3 +6,31 @@
 .info-text {
 	text-align: center;
 }
+
+mat-spinner {
+	margin: auto;
+}
+
+.post-image {
+	width: 65%;
+	max-height: 74vh;
+	overflow-x: hidden;
+	margin: 0 auto;
+	border-radius: 4px;
+	box-shadow: 1px 1px 5px rgba(0,0,0,1);
+	background-size: cover;
+}
+
+.post-image > img {
+	width: 100%;
+	margin-bottom: -5px;
+	border-radius: 4px;
+}
+
+.post-image::-webkit-scrollbar { 
+    display: none; 
+}
+
+mat-paginator  {
+	margin-top: 1rem;
+}

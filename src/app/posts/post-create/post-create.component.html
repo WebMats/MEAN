@@ -1,38 +1,57 @@
 
 <mat-card>
-	<form (ngSubmit)="onAddPost(f)" #f="ngForm">
+	<mat-spinner *ngIf="isLoading"></mat-spinner>
+	<form [formGroup]="postForm" (ngSubmit)="onSavePost()" *ngIf="!isLoading">
+		<button
+			class="img-btn"
+			style="border:1px solid red;" 
+			mat-icon-button 
+			type="button" 
+			(click)="filePicker.click()"
+			*ngIf="imagePreview !== '' && imagePreview && !postForm.get('image').valid" 
+		><mat-icon>perm_media</mat-icon></button>
+		<button
+			class="img-btn" 
+			mat-icon-button 
+			type="button" 
+			(click)="filePicker.click()"
+			*ngIf="(imagePreview == '' || !imagePreview) || (imagePreview !== ''  && postForm.get('image').valid)" 
+		><mat-icon>perm_media</mat-icon></button>
+		<div class="image-preview" *ngIf="imagePreview !== '' && imagePreview && postForm.get('image').valid ">
+			<img [src]="imagePreview" [alt]="postForm.value.title">
+		</div>
+		<input type="file" #filePicker (change)="onImagePicked($event)" >
 		<mat-form-field>
 			<input 
-				matInput 
+				matInput
+				formControlName="title"
 				type="text" 
 				name="title" 
 				id="title" 
 				placeholder="Post Tile" 
-				ngModel
-				required
-				minlength="4"
-				#title="ngModel"
 			>
-			<mat-error *ngIf="title.invalid && title.touched">title must be more than three characters</mat-error>
+			<mat-error 
+				*ngIf="postForm.get('title').invalid && postForm.get('title').touched"
+			>title must be more than three characters</mat-error>
 		</mat-form-field>
 		<mat-form-field>
 			<textarea 
-				matInput 
+				matInput
+				formControlName="content" 
 				name="content" 
 				id="content" 
-				ngModel
-				required 
 				placeholder="Post Content" 
 				rows="6" 
-				#content="ngModel"
 			></textarea>
-			<mat-error *ngIf="content.invalid && content.touched">please enter some content</mat-error>
+			<mat-error 
+				*ngIf="postForm.get('content').invalid && postForm.get('content').touched"
+			>please enter some content</mat-error>
 		</mat-form-field>
 		<button
-			[disabled]="f.invalid" 
+			[disabled]="postForm.invalid" 
 			mat-raised-button 
 			color="accent"
 			type="submit" 
-		>{{ !f.invalid ? 'Save Post' : 'Please Fill Post '}}</button>
+		>{{ !postForm.invalid ? 'Save Post' : 'Please Fill Post '}}</button>
 	</form>
 </mat-card>
