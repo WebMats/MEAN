@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { PostsService } from '../posts.service'
 import { MongoDBPost } from '../post.model';
 import { ClientPost } from '../post.model';
 import { mineType } from './mime-type.validator';
+import { AuthService } from '../../auth/auth.service';
 
 
 @Component({
@@ -13,17 +15,21 @@ import { mineType } from './mime-type.validator';
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.css']
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
   private mode: string = 'create';
   postForm: FormGroup;
   imagePreview: string;
   isLoading: boolean = false;
   private postId: string;
+  private authStatusSub: Subscription;
 
-  constructor(private postsService: PostsService, private route: ActivatedRoute) {}
+  constructor(private postsService: PostsService, private route: ActivatedRoute, private authService: AuthService) {}
 
 
   ngOnInit() {
+    this.authStatusSub = this.authService.authStatusListener.subscribe(authStatus =>{
+      this.isLoading = false;
+    })
     this.postForm = new FormGroup({
       'title': new FormControl(null, {validators: [Validators.required, Validators.minLength(4)]}),
       'content': new FormControl(null, {validators: Validators.required}),
@@ -65,7 +71,8 @@ export class PostCreateComponent implements OnInit {
       id: this.postId ||  null, 
       title: this.postForm.value.title, 
       content: this.postForm.value.content, 
-      imagePath: typeof(this.postForm.value.image) === "string" ? this.postForm.value.image : null
+      imagePath: typeof(this.postForm.value.image) === "string" ? this.postForm.value.image : null,
+      creator: null
     }
     if (this.mode ==='create') {
       this.postsService.addPost(post, this.postForm.value.image)
@@ -76,4 +83,8 @@ export class PostCreateComponent implements OnInit {
   	this.postForm.reset();
   }
 
+  ngOnDestroy() {
+    this.authStatusSub.unsubscribe();
+  }
+  
 }

@@ -28,12 +28,14 @@
 				placeholder="Password" 
 				#passwordInput="ngModel"
 				required
+				minLength="5"
 			>
 			<mat-error 
 				*ngIf="passwordInput.invalid && passwordInput.touched"
-			>Password is invalid!</mat-error>
+			>Password must be at least five characters!</mat-error>
 		</mat-form-field>
 		<button
+			*ngIf="!isLoading"
 			[disabled]="f.invalid" 
 			mat-raised-button 
 			color="accent"

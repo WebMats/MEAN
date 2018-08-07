@@ -4,6 +4,8 @@ import { PageEvent } from '@angular/material';
 
 import { PostsService } from '../posts.service';
 import { ClientPost } from '../post.model';
+import { AuthService } from '../../auth/auth.service';
+import { User } from '../../auth/auth-data.model'
 
 
 @Component({
@@ -19,11 +21,13 @@ export class PostListComponent implements OnInit, OnDestroy {
   postsPerPage: number = 2;
   currentPage: number = 1;
   pageSizeOptions =  [1, 2, 5, 10];
-
+  user: User = {id: null, token: null};
   private postsSub: Subscription;
+  private authStatusSub: Subscription;
+  userIsAuthenticated: boolean = false;
 
 
-  constructor(private postsService: PostsService) { }
+  constructor(private postsService: PostsService, private authService: AuthService) { }
 
   ngOnInit() {
     this.isLoading = true;
@@ -32,6 +36,12 @@ export class PostListComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       this.totalPost = clientData.postCount;
       this.posts = clientData.posts;
+    });
+    this.user = this.authService.getUser();
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub = this.authService.authStatusListener.subscribe(isAuthenticated => {
+      this.userIsAuthenticated = isAuthenticated;
+      this.user = this.authService.getUser();
     });
   }
 
@@ -46,12 +56,15 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.postsService.deletePost(postId).subscribe(() => {
       this.postsService.getPosts(this.postsPerPage, this.currentPage);
+    }, () => {
+      this.isLoading = false;
     })
   }
 
 
   ngOnDestroy() {
   	this.postsSub.unsubscribe();
+    this.authStatusSub.unsubscribe();
   }
 
 }

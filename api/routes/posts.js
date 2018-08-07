@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose')
 
 const Post = require('../controllers/mondels/Post');
+const checkAuth = require('../middleware/check-auth');
 
 
 const multer = require('multer');
@@ -32,13 +33,16 @@ const upload = multer({storage: storageStructure, limit: {
 
 
 
-router.post('', upload.single('image'), (req,res,next) => {
+router.post('', checkAuth, upload.single('image'), (req,res,next) => {
 	const url = `${req.protocol}://${req.get("host")}`
 	req.body._id = mongoose.Types.ObjectId();
 	const imagePath = `${url}/images/${req.file.filename}`;
-	const post = new Post({...req.body, imagePath: imagePath})
+	const post = new Post({...req.body, imagePath: imagePath, creator: req.userData.userId })
+	console.log(post)
 	post.save().then(createdPost => {
 		res.status(201).json({message: "Post added succesfully!", post: createdPost})
+	}).catch(err => {
+		res.status(500).json({message: "Creating post failed!"})
 	})
 })
 
@@ -53,11 +57,11 @@ router.get('', (req, res, next) => {
 	}
 	postQuery.find().then(posts => {
 		fetchedPosts = posts
-		return Post.count()
+		return Post.countDocuments()
 	}).then(count => {
 		res.status(200).json({ message: "posts were fetched succesfully!", posts: fetchedPosts, maxPosts: count })
 	}).catch(err => {
-		console.log(err);
+		res.status(500).json({message: "Fetching Posts Failed!"})
 	})
 	
 })
@@ -69,23 +73,38 @@ router.get('/:id', (req, res, next) => {
 		} else {
 			res.status(404).json({message: "Post not found!"})
 		}
+	}).catch(err => {
+		res.status(500).json({message: "Fetching Post Failed!"})
 	})
 })
 
-router.patch('/:id', upload.single('image'), (req, res, next) => {
+router.patch('/:id', checkAuth, upload.single('image'), (req, res, next) => {
 	if (req.file) {
 		const url = `${req.protocol}://${req.get("host")}`
 		let imagePath = `${url}/images/${req.file.filename}`;
 		req.body.imagePath = imagePath;
+		req.body.creator = req.userData.userId
 	}
-	Post.updateOne({_id: req.params.id}, req.body).then(result => {
-		res.status(200).json({message: "update succesful!"})
+	Post.updateOne({_id: req.params.id, creator: req.userData.userId}, req.body).then(result => {
+		if (result.nModified > 0) {
+			res.status(200).json({message: "update succesful!"})	
+		} else {
+			res.status(401).json({message: "Not Authorized!"})
+		}
+	}).catch(err => {
+		res.status(500).json({message: "Could not update post!"})
 	})
 })
 
-router.delete('/:id', (req, res, next) => {
-	Post.deleteOne({_id: req.params.id}).then(result => {
-		res.status(202).json({message: "Your post was Deleted!"})
+router.delete('/:id', checkAuth, (req, res, next) => {
+	Post.deleteOne({_id: req.params.id, creator: req.userData.userId}).then(result => {
+		if (result.n > 0) {
+			res.status(200).json({message: "Deletion succesful!"})	
+		} else {
+			res.status(401).json({message: "Not Authorized!"})
+		}
+	}).catch(err => {
+		res.status(500).json({message: "Deleting Posts Failed!"})
 	})
 })
 

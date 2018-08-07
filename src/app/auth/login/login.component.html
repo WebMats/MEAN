@@ -34,6 +34,7 @@
 			>Password is invalid!</mat-error>
 		</mat-form-field>
 		<button
+			*ngIf="!isLoading"
 			[disabled]="f.invalid" 
 			mat-raised-button 
 			color="accent"

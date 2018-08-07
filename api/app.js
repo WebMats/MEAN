@@ -1,14 +1,11 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const crypto = require('crypto');
 const mongoose = require('mongoose');
-
 
 const postRoutesHandler = require('./routes/posts');
 const userRoutesHandler = require('./routes/user');
 
-const secret = crypto.randomBytes(128).toString('hex');
 
 // DB Connextion
 const URI = require('./config/keys').MongoDBURI;
@@ -25,7 +22,7 @@ app.use("/images", express.static(path.join("api/images")));
 // Handle CORS
 app.use((req, res, next) => {
 	res.setHeader("Access-Control-Allow-Origin", '*');
-	res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 	res.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, OPTIONS");
 	next();
 })
