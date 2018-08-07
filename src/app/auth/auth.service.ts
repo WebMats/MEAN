@@ -3,9 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
+import { environment } from '../../environments/environment';
 import { AuthData } from './auth-data.model';
 import { User } from './auth-data.model';
 
+
+const API_URL = `${environment.apiUrl}/user`;
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -24,7 +27,7 @@ constructor( private httpClient: HttpClient, private router: Router ) {}
 	}
 
 	createUser = (authData: AuthData) => {
-		this.httpClient.post("http://localhost:3000/api/user/signup", authData).subscribe(response => {
+		this.httpClient.post(`${API_URL}/signup`, authData).subscribe(response => {
 			this.router.navigate(['/'])
 		}, err => {
 			this.authStatusListener.next(false);
@@ -32,7 +35,7 @@ constructor( private httpClient: HttpClient, private router: Router ) {}
 	}
 
 	login = (authData: AuthData) => {
-		this.httpClient.post<{id: string, token: string, expiresIn: number }>("http://localhost:3000/api/user/login", authData).subscribe(response => {
+		this.httpClient.post<{id: string, token: string, expiresIn: number }>(`${API_URL}/login`, authData).subscribe(response => {
 			if (response.token) {
 				const expiresInDuration = response.expiresIn;
 				this.setAuthTimer(expiresInDuration)
