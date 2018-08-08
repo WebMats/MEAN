@@ -10,6 +10,7 @@
 /config/*
 nodemon.json
 /images
+package-lock.json
 
 # IDEs and editors
 /.idea
