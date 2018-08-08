@@ -7,7 +7,7 @@
 
 # dependencies
 /node_modules
-/config
+/config/*
 nodemon.json
 /images
 
