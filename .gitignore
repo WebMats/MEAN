@@ -4,10 +4,10 @@
 /dist
 /tmp
 /out-tsc
+config
 
 # dependencies
 /node_modules
-/config/*
 nodemon.json
 /images
 package-lock.json
