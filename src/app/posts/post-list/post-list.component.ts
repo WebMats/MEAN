@@ -16,7 +16,7 @@ import { User } from '../../auth/auth-data.model'
 export class PostListComponent implements OnInit, OnDestroy {
 	isLoading: boolean = false;
 	posts: ClientPost[] = [];
-
+  defaultUser = {email: 'user@public.com', password: 'password'};
   totalPost: number = 10;
   postsPerPage: number = 2;
   currentPage: number = 1;
@@ -40,6 +40,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.user = this.authService.getUser();
     this.userIsAuthenticated = this.authService.getIsAuth();
     this.authStatusSub = this.authService.authStatusListener.subscribe(isAuthenticated => {
+      this.isLoading = false;
       this.userIsAuthenticated = isAuthenticated;
       this.user = this.authService.getUser();
     });
@@ -59,6 +60,11 @@ export class PostListComponent implements OnInit, OnDestroy {
     }, () => {
       this.isLoading = false;
     })
+  }
+
+  loginDefault = () => {
+    this.isLoading = true;
+    this.authService.login(this.defaultUser);
   }
 
 

@@ -32,8 +32,15 @@ exports.create_user = (req, res, next) => {
 			email: req.body.email,
 			password: hash
 		});
-		user.save().then(result => {
-			res.status(201).json({message: "user created!", result: result})
+		user.save().then(createdUser => {
+			if (!createdUser) {
+				res.status(401).json({message: "Could not create user!"})
+			}
+			const token = jwt.sign({email: createdUser.email, userId: createdUser._id}, process.env.JWT_SECRET_KEY, {expiresIn: '2h'})
+			if (!token) {
+				res.status(500).json({message: "Please try to sign in!"})
+			}
+			res.status(201).json({id: createdUser._id, token: token, expiresIn: 7200})
 		}).catch(err => {
 			res.status(500).json({message: "Email already in use!"})
 		})

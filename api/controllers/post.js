@@ -10,7 +10,6 @@ exports.create_post =(req,res,next) => {
 	req.body._id = mongoose.Types.ObjectId();
 	const imagePath = `${url}/images/${req.file.filename}`;
 	const post = new Post({...req.body, imagePath: imagePath, creator: req.userData.userId })
-	console.log(post)
 	post.save().then(createdPost => {
 		res.status(201).json({message: "Post added succesfully!", post: createdPost})
 	}).catch(err => {

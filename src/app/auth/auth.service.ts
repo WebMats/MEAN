@@ -27,8 +27,17 @@ constructor( private httpClient: HttpClient, private router: Router ) {}
 	}
 
 	createUser = (authData: AuthData) => {
-		this.httpClient.post(`${API_URL}/signup`, authData).subscribe(response => {
-			this.router.navigate(['/'])
+		this.httpClient.post<{id: string, token: string, expiresIn: number }>(`${API_URL}/signup`, authData).subscribe(response => {
+			if (response.token) {
+				const expiresInDuration = response.expiresIn;
+				this.setAuthTimer(expiresInDuration)
+				this.user = { id: response.id, token: response.token };
+				this.authStatusListener.next(true);
+				const now = new Date();
+				const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
+				this.saveAuthData(this.user.id, this.user.token, expirationDate)
+				this.router.navigate(['/'])
+			}
 		}, err => {
 			this.authStatusListener.next(false);
 		})
